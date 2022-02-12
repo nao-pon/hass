@@ -97,7 +97,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_track_utc_time_change(hass, dataFetcher.updating_devices, second=0)
 
     # 最初の取得と同期、ループの開始
-    await dataFetcher.fetching_data()
+    hass.async_create_task(dataFetcher.fetching_data())
 
 # ------------------------------------------------------------------------------
 # エンティティ定義
@@ -123,7 +123,7 @@ class mySensorEntities(Entity):
         return False
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         return {
             ATTR_ATTRIBUTION: CONF_ATTRIBUTION,
         }
@@ -160,7 +160,7 @@ class myDataFetcher:
 
         try:
             websession = async_get_clientsession(self.hass)
-            with async_timeout.timeout(10, loop=self.hass.loop):
+            with async_timeout.timeout(10):
                 resp = await websession.get(
                     self._url, params=self._urlparams)
 
